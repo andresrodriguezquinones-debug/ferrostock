@@ -7,10 +7,9 @@
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <!-- Firebase -->
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getFirestore, collection, doc, setDoc, getDoc, getDocs, deleteDoc, onSnapshot, orderBy, query, addDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+<script>
 const firebaseConfig = {
   apiKey: "AIzaSyCfne2bVrNkHYbGhGBOxGUJ4D48zffIcBI",
   authDomain: "tornifrenos-f1dd9.firebaseapp.com",
@@ -19,15 +18,9 @@ const firebaseConfig = {
   messagingSenderId: "139831138962",
   appId: "1:139831138962:web:bc66b54926a8d59dfea44b"
 };
-
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
-
-// Exponer al scope global
-window.db = db;
-window.fsLib = { collection, doc, setDoc, getDoc, getDocs, deleteDoc, onSnapshot, orderBy, query, addDoc, updateDoc };
-window.firebaseReady = true;
-document.dispatchEvent(new Event('firebaseReady'));
+firebase.initializeApp(firebaseConfig);
+const DB = firebase.firestore();
+window.DB = DB;
 </script>
 <style>
 :root{--bg:#f4f1eb;--sur:#fff;--dark:#1c1c1c;--steel:#3a4a5c;--org:#e05c1a;--gray:#8a8a8a;--bdr:#e0ddd6;--grn:#2d8a4e;--red:#c0392b;--yel:#e6b800;}
