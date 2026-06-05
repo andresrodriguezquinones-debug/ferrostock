@@ -23,7 +23,7 @@ var DB = firebase.firestore();
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 :root{
   --bg:#f0f2f5;--sur:#fff;--dark:#1a1d23;--gray:#6b7280;--border:#e5e7eb;
-  --org:#e05c1a;--org2:#ff6b35;--grn:#10b981;--red:#ef4444;--yel:#f59e0b;
+  --org:#c0392b;--org2:#e74c3c;--grn:#10b981;--red:#ef4444;--yel:#f59e0b;
   --blue:#3b82f6;--purple:#8b5cf6;
   --shadow:0 1px 3px rgba(0,0,0,.08),0 1px 2px rgba(0,0,0,.06);
   --shadow-md:0 4px 6px rgba(0,0,0,.07),0 2px 4px rgba(0,0,0,.06);
@@ -268,7 +268,30 @@ body{background:var(--bg);font-family:'Inter',sans-serif;color:var(--dark);min-h
 .atxt{font-size:12px;color:#9a3412;font-weight:600}
 .alink{font-size:12px;color:var(--org);cursor:pointer;font-weight:600}
 
-/* TOAST */
+/* PEDIDOS */
+.ped-empty{text-align:center;padding:50px 20px}
+.ped-empty-ico{width:64px;height:64px;background:#ecfdf5;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 16px}
+.ped-empty-tit{font-size:16px;font-weight:700;color:var(--dark);margin-bottom:6px}
+.ped-empty-sub{font-size:13px;color:var(--gray)}
+.ped-card{background:var(--sur);border-radius:14px;margin-bottom:10px;box-shadow:var(--shadow);overflow:hidden;border-left:3px solid var(--red);animation:fadeUp .25s ease both}
+.ped-main{display:flex;align-items:center;gap:12px;padding:14px}
+.ped-img{width:44px;height:44px;border-radius:10px;background:#f3f4f6;display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden}
+.ped-img img{width:100%;height:100%;object-fit:cover}
+.ped-info{flex:1;min-width:0}
+.ped-ref{font-size:11px;color:var(--gray);font-weight:500}
+.ped-name{font-size:13px;font-weight:600;color:var(--dark);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ped-stock{display:flex;gap:12px;margin-top:5px}
+.ped-stock-item{font-size:11px;font-weight:500}
+.ps-actual{color:var(--red)}.ps-min{color:var(--gray)}.ps-falta{color:var(--org)}
+.ped-cant-wrap{display:flex;align-items:center;gap:6px;padding:10px 14px;border-top:1px solid var(--border);background:#fafafa}
+.ped-cant-label{font-size:12px;font-weight:600;color:var(--dark);flex:1}
+.ped-cant-input{width:80px;padding:7px 10px;border:1.5px solid var(--border);border-radius:8px;font-family:'Inter',sans-serif;font-size:13px;font-weight:600;text-align:center;outline:none;background:#fff}
+.ped-cant-input:focus{border-color:var(--org)}
+.ped-unit{font-size:12px;color:var(--gray);font-weight:500}
+.ped-resumen{background:var(--sur);border-radius:14px;padding:14px;margin-bottom:16px;box-shadow:var(--shadow);display:flex;gap:12px}
+.ped-res-item{flex:1;text-align:center;padding:10px;background:var(--bg);border-radius:10px}
+.ped-res-num{font-size:20px;font-weight:700;color:var(--dark)}
+.ped-res-label{font-size:10px;color:var(--gray);font-weight:600;text-transform:uppercase;letter-spacing:.3px;margin-top:2px}
 .toast{position:fixed;bottom:100px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--dark);color:#fff;padding:12px 20px;border-radius:12px;font-size:13px;font-weight:500;letter-spacing:.2px;z-index:600;transition:transform .35s cubic-bezier(.4,0,.2,1);white-space:nowrap;box-shadow:var(--shadow-lg);border-left:3px solid var(--org)}
 .toast.show{transform:translateX(-50%) translateY(0)}
 </style>
@@ -279,12 +302,16 @@ body{background:var(--bg);font-family:'Inter',sans-serif;color:var(--dark);min-h
 <div id="loginScreen">
   <div class="lbox">
     <div class="l-logo">
-      <div class="l-logo-icon">🔩</div>
+      <div class="l-logo-icon">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/>
+        </svg>
+      </div>
       <div>
         <div class="l-logo-text">TORNI<span>FRENOS</span></div>
       </div>
     </div>
-    <div class="l-sub">Control de Inventario</div>
+    <div class="l-sub">Sistema de Control de Inventario</div>
     <label class="l-label">Usuario</label>
     <input class="l-input" id="luser" type="text" placeholder="admin" autocomplete="off">
     <label class="l-label">Contraseña</label>
@@ -298,12 +325,25 @@ body{background:var(--bg);font-family:'Inter',sans-serif;color:var(--dark);min-h
 <div id="app">
   <div class="hdr">
     <div class="hdr-left">
-      <div class="hdr-logo-icon">🔩</div>
+      <div class="hdr-logo-icon">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/>
+        </svg>
+      </div>
       <div class="hdr-logo-text">TORNI<span>FRENOS</span></div>
     </div>
     <div class="hdr-right">
       <div class="hdr-avatar" id="hdrAvatar">A</div>
-      <button class="hdr-cfg" id="cfgBtn" onclick="openCfg()">☰</button>
+      <button class="hdr-cfg" id="cfgBtn" onclick="openCfg()" title="Configuración">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+        </svg>
+      </button>
+      <button class="hdr-cfg" onclick="doLogout()" title="Cerrar sesión" style="color:rgba(255,255,255,.5)">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/>
+        </svg>
+      </button>
     </div>
   </div>
   <div class="sync-bar">
@@ -317,14 +357,28 @@ body{background:var(--bg);font-family:'Inter',sans-serif;color:var(--dark);min-h
 
   <!-- BOTTOM NAV -->
   <div class="bottom-nav">
-    <button class="bnav active" id="bnav-home" onclick="setTab('home')"><span class="bico">🏠</span>Inicio</button>
-    <button class="bnav" id="bnav-inv" onclick="setTab('inv')"><span class="bico">📦</span>Inventario</button>
-    <button class="bnav" id="bnav-his" onclick="setTab('his')"><span class="bico">📋</span>Movimientos</button>
-    <button class="bnav" id="bnav-usr" onclick="setTab('usr')"><span class="bico">👥</span>Usuarios</button>
+    <button class="bnav active" id="bnav-home" onclick="setTab('home')">
+      <span class="bico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></span>Inicio
+    </button>
+    <button class="bnav" id="bnav-inv" onclick="setTab('inv')">
+      <span class="bico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg></span>Inventario
+    </button>
+    <button class="bnav" id="bnav-his" onclick="setTab('his')">
+      <span class="bico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></span>Movimientos
+    </button>
+    <button class="bnav" id="bnav-ped" onclick="setTab('ped')">
+      <span class="bico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg></span>Pedidos
+      <span id="pedBadge" style="display:none;position:absolute;top:6px;background:var(--red);color:white;font-size:9px;font-weight:700;padding:1px 5px;border-radius:10px;right:calc(50% - 18px)"></span>
+    </button>
+    <button class="bnav" id="bnav-usr" onclick="setTab('usr')">
+      <span class="bico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></span>Usuarios
+    </button>
   </div>
 
   <!-- FAB -->
-  <button class="fab" id="fabBtn" onclick="openItemModal()" title="Nuevo producto">+</button>
+  <button class="fab" id="fabBtn" onclick="openItemModal()" title="Nuevo producto">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+  </button>
 
   <!-- HOME TAB -->
   <div class="tab-content active" id="tab-home">
@@ -335,25 +389,25 @@ body{background:var(--bg);font-family:'Inter',sans-serif;color:var(--dark);min-h
     </div>
     <div class="stats-grid">
       <div class="stat-card sc-ref">
-        <div class="stat-icon si-blue">📦</div>
+        <div class="stat-icon si-blue"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg></div>
         <div class="stat-num" id="stTotal">0</div>
         <div class="stat-label">Referencias</div>
         <div class="stat-trend trend-ok" id="stTotalTrend">— productos</div>
       </div>
       <div class="stat-card sc-und">
-        <div class="stat-icon si-grn">🔢</div>
+        <div class="stat-icon si-grn"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg></div>
         <div class="stat-num" id="stUnd">0</div>
         <div class="stat-label">Unidades</div>
         <div class="stat-trend trend-up" id="stUndTrend">en inventario</div>
       </div>
       <div class="stat-card sc-low">
-        <div class="stat-icon si-yel">⚠️</div>
+        <div class="stat-icon si-yel"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div>
         <div class="stat-num" id="stBajo">0</div>
         <div class="stat-label">Stock bajo</div>
         <div class="stat-trend trend-warn" id="stBajoTrend">¡Excelente!</div>
       </div>
       <div class="stat-card sc-val">
-        <div class="stat-icon si-org">💰</div>
+        <div class="stat-icon si-org"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#c0392b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div>
         <div class="stat-num snb" id="stVal">$0</div>
         <div class="stat-label">Valor total</div>
         <div class="stat-trend trend-up">inventario</div>
@@ -367,17 +421,17 @@ body{background:var(--bg);font-family:'Inter',sans-serif;color:var(--dark);min-h
       <div class="resumen-card">
         <div class="resumen-row">
           <div class="res-item">
-            <div class="res-icon ri-grn">⬇️</div>
+            <div class="res-icon ri-grn"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><polyline points="19 12 12 19 5 12"/></svg></div>
             <div class="res-val" id="resEntradas">0</div>
             <div class="res-label">Entradas</div>
           </div>
           <div class="res-item">
-            <div class="res-icon ri-red">⬆️</div>
+            <div class="res-icon ri-red"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg></div>
             <div class="res-val" id="resSalidas">0</div>
             <div class="res-label">Salidas</div>
           </div>
           <div class="res-item">
-            <div class="res-icon ri-blue">💵</div>
+            <div class="res-icon ri-blue"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div>
             <div class="res-val" id="resValor">$0</div>
             <div class="res-label">Valor mov.</div>
           </div>
@@ -402,8 +456,14 @@ body{background:var(--bg);font-family:'Inter',sans-serif;color:var(--dark);min-h
     </div>
     <div class="filters" id="ftabs"></div>
     <div style="display:flex;gap:8px;padding:0 20px;margin-bottom:12px" id="ebrow">
-      <button style="flex:1;background:var(--grn);color:#fff;border:none;padding:10px;border-radius:10px;font-family:'Inter',sans-serif;font-size:13px;font-weight:600;cursor:pointer" onclick="exportExcel()">📥 Excel</button>
-      <button style="flex:1;background:var(--dark);color:#fff;border:none;padding:10px;border-radius:10px;font-family:'Inter',sans-serif;font-size:13px;font-weight:600;cursor:pointer" onclick="document.getElementById('impInp').click()">📤 Importar</button>
+      <button style="flex:1;background:var(--grn);color:#fff;border:none;padding:10px;border-radius:10px;font-family:'Inter',sans-serif;font-size:13px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px" onclick="exportExcel()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Exportar
+      </button>
+      <button style="flex:1;background:var(--dark);color:#fff;border:none;padding:10px;border-radius:10px;font-family:'Inter',sans-serif;font-size:13px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px" onclick="document.getElementById('impInp').click()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        Importar
+      </button>
       <input type="file" id="impInp" accept=".xlsx,.xls,.csv" style="display:none" onchange="importExcel(this)">
     </div>
     <div class="products-list" id="itemList"></div>
@@ -422,6 +482,23 @@ body{background:var(--bg);font-family:'Inter',sans-serif;color:var(--dark);min-h
         <button class="hf" onclick="setHF('salida',this)">Salidas</button>
       </div>
       <div id="hisList"></div>
+    </div>
+  </div>
+
+  <!-- PEDIDOS TAB -->
+  <div class="tab-content" id="tab-ped">
+    <div style="padding:16px 20px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+        <div>
+          <div style="font-size:18px;font-weight:700;color:var(--dark)">Lista de Pedidos</div>
+          <div style="font-size:12px;color:var(--gray);margin-top:2px">Productos bajo el stock mínimo</div>
+        </div>
+        <button onclick="exportarPedido()" style="background:var(--grn);color:#fff;border:none;padding:8px 14px;border-radius:10px;font-family:'Inter',sans-serif;font-size:12px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:6px">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Exportar
+        </button>
+      </div>
+      <div id="pedList"></div>
     </div>
   </div>
 
@@ -616,7 +693,7 @@ window.addEventListener('load',function(){
 
   DB.collection('productos').onSnapshot(function(snap){
     items=snap.docs.map(function(d){return Object.assign({id:d.id},d.data());});
-    renderItems(); renderHomeList(); updateStats(); loadResumen();
+    renderItems(); renderHomeList(); updateStats(); loadResumen(); renderPedidos();
   },function(err){SS('err','Error: '+err.message);});
 
   DB.collection('usuarios').onSnapshot(function(snap){
@@ -674,7 +751,7 @@ function applyBrand(){
 
 // ══════════ TABS ══════════
 function setTab(t){
-  ['home','inv','his','usr'].forEach(function(x){
+  ['home','inv','his','ped','usr'].forEach(function(x){
     var tc=document.getElementById('tab-'+x);
     var bn=document.getElementById('bnav-'+x);
     if(tc) tc.classList.toggle('active',x===t);
@@ -682,6 +759,7 @@ function setTab(t){
   });
   if(t==='his') loadHis();
   if(t==='usr') renderUsrs();
+  if(t==='ped') renderPedidos();
 }
 
 // ══════════ STATS ══════════
@@ -753,11 +831,11 @@ function prodCardHTML(item,idx,isA){
         '<div class="prod-price">'+pr+'</div>'+
       '</div>'+
     '</div>'+
-    '<div class="prod-actions">'+
-      (isA?'<button class="pact pact-edit" onclick="openItemModal(\''+item.id+'\')">✏️ Editar</button>':'')+
-      '<button class="pact pact-in" onclick="openEntModal(\''+item.id+'\')">⬇️ Entrada</button>'+
-      '<button class="pact pact-out" onclick="openSalModal(\''+item.id+'\')">⬆️ Salida</button>'+
-      (isA?'<button class="pact pact-del" onclick="askDel(\''+item.id+'\',\'item\')">🗑️</button>':'')+
+            '<div class="prod-actions">'+
+      (isA?'<button class="pact pact-edit" onclick="openItemModal(\''+item.id+'\')"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg> Editar</button>':'')+
+      '<button class="pact pact-in" onclick="openEntModal(\''+item.id+'\')"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><polyline points="19 12 12 19 5 12"/></svg> Entrada</button>'+
+      '<button class="pact pact-out" onclick="openSalModal(\''+item.id+'\')"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg> Salida</button>'+
+      (isA?'<button class="pact pact-del" onclick="askDel(\''+item.id+'\',\'item\')"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg></button>':'')+
     '</div>'+
   '</div>';
 }
@@ -896,7 +974,11 @@ function renderHis(){
     var f=new Date(m.fecha);
     var fs=f.toLocaleDateString('es-CO')+' '+f.toLocaleTimeString('es-CO',{hour:'2-digit',minute:'2-digit'});
     return '<div class="mov-card" style="animation-delay:'+i*.02+'s">'+
-      '<div class="mov-ico '+(m.tipo==='entrada'?'mico-in':'mico-out')+'">'+(m.tipo==='entrada'?'📥':'📤')+'</div>'+
+      '<div class="mov-ico '+(m.tipo==='entrada'?'mico-in':'mico-out')+'">'+
+        (m.tipo==='entrada'
+          ?'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><polyline points="19 12 12 19 5 12"/></svg>'
+          :'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg>')+
+      '</div>'+
       '<div class="mov-info">'+
         '<div class="mov-title">'+m.ref+' — '+m.nombre+'</div>'+
         '<div class="mov-sub">👤 '+m.usuario+(m.nota?' · '+m.nota:'')+'</div>'+
@@ -931,7 +1013,7 @@ function renderUsrs(){
         '<div class="usr-un">@'+u.usuario+'</div>'+
         '<span class="usr-role '+(u.rol==='admin'?'ur-admin':'ur-vend')+'">'+(u.rol==='admin'?'Admin':'Vendedor')+'</span>'+
       '</div>'+
-      (u.usuario!=='admin'?'<button class="usr-del" onclick="askDel(\''+u.id+'\',\'usr\')">🗑️</button>':'<span style="font-size:11px;color:var(--gray)">Principal</span>')+
+      (u.usuario!=='admin'?'<button class="usr-del" onclick="askDel(\''+u.id+'\',\'usr\')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg></button>':'<span style="font-size:11px;color:var(--gray)">Principal</span>')+
     '</div>';
   }).join('');
 }
@@ -1040,6 +1122,103 @@ function saveCfg(){
   DB.collection('config').doc('main').set({nombre:cfg.nombre,logo:cfg.logo,moneda:cfg.moneda,formato:cfg.formato,categorias:cfg.categorias});
   applyBrand();buildFTabs();closeCfg();renderItems();
   toast('✅ Configuración guardada');
+}
+
+// ══════════ PEDIDOS ══════════
+var pedCantidades = {};
+
+function calcularPedidos(){
+  return items.filter(function(i){ return Number(i.min)>0 && Number(i.qty)<=Number(i.min); });
+}
+
+function renderPedidos(){
+  var lista = calcularPedidos();
+  var el = document.getElementById('pedList');
+  var badge = document.getElementById('pedBadge');
+
+  // Badge en nav
+  if(lista.length>0){
+    badge.style.display='block';
+    badge.textContent=lista.length;
+  } else {
+    badge.style.display='none';
+  }
+
+  if(!lista.length){
+    el.innerHTML='<div class="ped-empty">'+
+      '<div class="ped-empty-ico"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>'+
+      '<div class="ped-empty-tit">Todo en orden</div>'+
+      '<div class="ped-empty-sub">No hay productos con stock bajo.<br>Cuando alguno baje del mínimo aparecerá aquí.</div>'+
+    '</div>';
+    document.getElementById('pedResumen') && (document.getElementById('pedResumen').style.display='none');
+    return;
+  }
+
+  // Resumen
+  var totalProductos = lista.length;
+  var totalFaltante = lista.reduce(function(s,i){ return s+(Number(i.min)-Number(i.qty)+1); },0);
+
+  var html = '<div class="ped-resumen">'+
+    '<div class="ped-res-item"><div class="ped-res-num" style="color:var(--red)">'+totalProductos+'</div><div class="ped-res-label">Productos</div></div>'+
+    '<div class="ped-res-item"><div class="ped-res-num" style="color:var(--org)">'+totalFaltante+'</div><div class="ped-res-label">Unid. mínimas</div></div>'+
+  '</div>';
+
+  html += lista.map(function(item, idx){
+    var actual = Number(item.qty);
+    var minimo = Number(item.min);
+    var falta = minimo - actual;
+    var cantGuardada = pedCantidades[item.id] || (falta + 1);
+    var imgHtml = item.img ? '<img src="'+item.img+'" alt="" onerror="this.style.display=\'none\'">' : '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>';
+
+    return '<div class="ped-card" style="animation-delay:'+idx*.04+'s">'+
+      '<div class="ped-main">'+
+        '<div class="ped-img">'+imgHtml+'</div>'+
+        '<div class="ped-info">'+
+          '<div class="ped-ref">'+item.ref+'</div>'+
+          '<div class="ped-name">'+item.name+'</div>'+
+          '<div class="ped-stock">'+
+            '<span class="ped-stock-item ps-actual">Stock: '+actual+' '+item.unit+'</span>'+
+            '<span class="ped-stock-item ps-min">Mín: '+minimo+'</span>'+
+            '<span class="ped-stock-item ps-falta">Falta: '+falta+'</span>'+
+          '</div>'+
+        '</div>'+
+      '</div>'+
+      '<div class="ped-cant-wrap">'+
+        '<span class="ped-cant-label">Cantidad a pedir</span>'+
+        '<input class="ped-cant-input" type="number" min="1" value="'+cantGuardada+'" '+
+          'onchange="pedCantidades[\''+item.id+'\']=Number(this.value)" '+
+          'oninput="pedCantidades[\''+item.id+'\']=Number(this.value)">'+
+        '<span class="ped-unit">'+item.unit+'</span>'+
+      '</div>'+
+    '</div>';
+  }).join('');
+
+  el.innerHTML = html;
+}
+
+function exportarPedido(){
+  var lista = calcularPedidos();
+  if(!lista.length){ toast('No hay productos para pedir'); return; }
+  var data = lista.map(function(item){
+    return {
+      'Referencia': item.ref,
+      'Nombre': item.name,
+      'Categoría': item.cat,
+      'Stock actual': item.qty,
+      'Stock mínimo': item.min,
+      'Faltante': Number(item.min)-Number(item.qty),
+      'Cantidad a pedir': pedCantidades[item.id] || (Number(item.min)-Number(item.qty)+1),
+      'Unidad': item.unit,
+      'Precio unitario': item.price||0
+    };
+  });
+  var ws = XLSX.utils.json_to_sheet(data);
+  ws['!cols'] = [12,30,12,12,12,10,14,8,12].map(function(w){ return {wch:w}; });
+  var wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'Pedido');
+  var fecha = new Date().toLocaleDateString('es-CO').replace(/\//g,'-');
+  XLSX.writeFile(wb, 'Pedido_'+fecha+'.xlsx');
+  toast('Lista de pedido exportada');
 }
 
 // ══════════ TOAST ══════════
