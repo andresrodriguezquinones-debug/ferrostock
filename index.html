@@ -162,7 +162,7 @@ body{background:var(--bg);font-family:'Inter',sans-serif;color:var(--dark);min-h
 
 /* FAB */
 .fab{position:fixed;bottom:88px;right:20px;width:50px;height:50px;background:linear-gradient(135deg,var(--org),var(--org2));border-radius:50%;border:none;color:#fff;cursor:pointer;box-shadow:0 4px 16px rgba(192,57,43,.5);z-index:50;display:none;align-items:center;justify-content:center;transition:transform .2s,opacity .2s}
-.fab.visible{display:flex}
+.fab.visible{display:flex !important}
 /* TOAST ÉXITO */
 .toast-success{border-left-color:var(--grn)}
 
@@ -283,7 +283,7 @@ body{background:var(--bg);font-family:'Inter',sans-serif;color:var(--dark);min-h
 .cf-yes{flex:1;background:var(--red);color:#fff;border:none;padding:11px;font-family:'Inter',sans-serif;font-size:14px;font-weight:600;cursor:pointer;border-radius:9px}
 
 /* TOAST */
-.toast{position:fixed;bottom:96px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--dark);color:#fff;padding:11px 20px;border-radius:11px;font-size:13px;font-weight:500;z-index:600;transition:transform .35s cubic-bezier(.4,0,.2,1);white-space:nowrap;box-shadow:var(--shadow-lg);border-left:3px solid var(--org)}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(120px);background:var(--dark);color:#fff;padding:11px 20px;border-radius:11px;font-size:13px;font-weight:500;z-index:50;transition:transform .35s cubic-bezier(.4,0,.2,1);white-space:nowrap;box-shadow:var(--shadow-lg);border-left:3px solid var(--org);pointer-events:none}
 .toast.show{transform:translateX(-50%) translateY(0)}
 </style>
 </head>
@@ -1081,11 +1081,17 @@ function askDel(id,type){
 }
 function closeCF(){ document.getElementById('cfbg').classList.remove('open'); delId=null; delType=null; }
 function doDelete(){
-  closeCF();
-  var col=delType==='item'?'productos':'usuarios';
-  DB.collection(col).doc(delId).delete()
-    .then(function(){ toast('Eliminado correctamente'); })
-    .catch(function(err){ toast('Error: '+err.message); });
+  var id = delId;
+  var type = delType;
+  var col = type === 'item' ? 'productos' : 'usuarios';
+  DB.collection(col).doc(id).delete()
+    .then(function(){
+      closeCF();
+      toast('Eliminado correctamente');
+    })
+    .catch(function(err){
+      toast('Error: ' + err.message);
+    });
 }
 
 // ══════════════════════════════
