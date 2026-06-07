@@ -161,7 +161,10 @@ body{background:var(--bg);font-family:'Inter',sans-serif;color:var(--dark);min-h
 .bnav-badge{position:absolute;top:5px;right:8px;background:var(--red);color:#fff;font-size:9px;font-weight:700;padding:1px 5px;border-radius:10px;line-height:14px;display:none}
 
 /* FAB */
-.fab{position:fixed;bottom:88px;right:20px;width:50px;height:50px;background:linear-gradient(135deg,var(--org),var(--org2));border-radius:50%;border:none;color:#fff;cursor:pointer;box-shadow:0 4px 16px rgba(192,57,43,.5);z-index:50;display:flex;align-items:center;justify-content:center}
+.fab{position:fixed;bottom:88px;right:20px;width:50px;height:50px;background:linear-gradient(135deg,var(--org),var(--org2));border-radius:50%;border:none;color:#fff;cursor:pointer;box-shadow:0 4px 16px rgba(192,57,43,.5);z-index:50;display:none;align-items:center;justify-content:center;transition:transform .2s,opacity .2s}
+.fab.visible{display:flex}
+/* TOAST ÉXITO */
+.toast-success{border-left-color:var(--grn)}
 
 /* TABS */
 .tab-content{display:none}.tab-content.active{display:block}
@@ -450,7 +453,7 @@ body{background:var(--bg);font-family:'Inter',sans-serif;color:var(--dark);min-h
   <div class="msh">
     <div class="m-handle"></div>
     <div class="m-title" id="itemMtit">Nuevo Producto</div>
-    <div class="fr"><label>Referencia *</label><input id="fRef" type="text" placeholder="T-M6x20"></div>
+    <div class="fr"><label>Referencia *</label><input id="fRef" type="text" placeholder="T-M6x20" oninput="checkRefDup()"><div id="refMsg" style="font-size:11px;margin-top:4px;display:none"></div></div>
     <div class="fr"><label>Nombre *</label><input id="fName" type="text" placeholder="Tornillo hexagonal M6x20mm"></div>
     <div class="fr"><label>Descripción</label><textarea id="fDesc" placeholder="Material, medida..."></textarea></div>
     <div class="fr"><label>Imagen (URL)</label><input id="fImg" type="url" placeholder="https://..."></div>
@@ -678,9 +681,40 @@ function renderHomeList(){
   el.innerHTML=list.map(function(item,i){ return prodCard(item,i,isA); }).join('');
 }
 
-// ══════════════════════════════
-// BÚSQUEDA CON DEBOUNCE
-// ══════════════════════════════
+// Validación en tiempo real de referencia duplicada
+function checkRefDup(){
+  var val = document.getElementById('fRef').value.trim();
+  var msg = document.getElementById('refMsg');
+  var input = document.getElementById('fRef');
+  if(!val){ msg.style.display='none'; input.style.borderColor=''; return; }
+  var dup = allItems.find(function(x){ return x.ref.toLowerCase()===val.toLowerCase() && x.id!==editItemId; });
+  if(dup){
+    msg.style.display='block';
+    msg.style.color='var(--red)';
+    msg.textContent='⚠ Ya existe: '+dup.name;
+    input.style.borderColor='var(--red)';
+  } else {
+    msg.style.display='block';
+    msg.style.color='var(--grn)';
+    msg.textContent='✓ Referencia disponible';
+    input.style.borderColor='var(--grn)';
+  }
+}
+function showFab(show){
+  var fab = document.getElementById('fabBtn');
+  if(show) fab.classList.add('visible');
+  else fab.classList.remove('visible');
+}
+
+// Flash del FAB al guardar
+function flashFab(){
+  var fab = document.getElementById('fabBtn');
+  fab.style.transform='scale(1.25)';
+  fab.style.opacity='1';
+  setTimeout(function(){ fab.style.transform='scale(1)'; },300);
+  setTimeout(function(){ fab.style.opacity='0'; },1200);
+  setTimeout(function(){ fab.style.opacity=''; fab.style.transform=''; },1600);
+}
 function onSearch(){
   clearTimeout(searchTimer);
   searchTimer = setTimeout(function(){
@@ -731,11 +765,12 @@ function doLogin(){
     document.getElementById('greetName').textContent=found.nombre||found.usuario;
     document.getElementById('greetDate').textContent=new Date().toLocaleDateString('es-CO',{weekday:'long',day:'numeric',month:'long',hour:'2-digit',minute:'2-digit'});
     var isA=found.rol==='admin';
-    document.getElementById('fabBtn').style.display=isA?'flex':'none';
     document.getElementById('cfgBtn').style.display=isA?'block':'none';
     document.getElementById('ebrow').style.display=isA?'flex':'none';
     document.getElementById('bnav-usr').style.display=isA?'flex':'none';
+    showFab(false); // empieza oculto, aparece al ir a inventario
     applyBrand(); buildFTabs();
+    setTab('home');
   } else { showErr('Usuario o contraseña incorrectos'); }
 }
 function showErr(msg){ var e=document.getElementById('lerr'); e.textContent='⚠ '+msg; e.style.display='block'; setTimeout(function(){ e.style.display='none'; },3000); }
@@ -753,6 +788,9 @@ function setTab(t){
     if(tc) tc.classList.toggle('active',x===t);
     if(bn) bn.classList.toggle('active',x===t);
   });
+  // FAB solo visible en inventario y solo para admin
+  var isA = curUser && curUser.rol==='admin';
+  showFab(t==='inv' && isA);
   if(t==='his') loadHis();
   if(t==='usr') renderUsrs();
   if(t==='ped') renderPedidos();
@@ -799,21 +837,49 @@ function openItemModal(id){
 function closeItemModal(){ document.getElementById('itemMbg').classList.remove('open'); editItemId=null; }
 
 function saveItem(){
-  var ref=document.getElementById('fRef').value.trim();
-  var name=document.getElementById('fName').value.trim();
-  var qty=document.getElementById('fQty').value;
+  var ref  = document.getElementById('fRef').value.trim();
+  var name = document.getElementById('fName').value.trim();
+  var qty  = document.getElementById('fQty').value;
   if(!ref||!name||qty===''){ toast('⚠ Completa los campos obligatorios'); return; }
-  var data={ref:ref,name:name,desc:document.getElementById('fDesc').value.trim(),img:document.getElementById('fImg').value.trim(),cat:document.getElementById('fCat').value,unit:document.getElementById('fUnit').value,qty:Number(qty),price:Number(document.getElementById('fPrice').value)||0,min:Number(document.getElementById('fMin').value)||0};
+
+  // Verificar referencia duplicada
+  var refLower = ref.toLowerCase();
+  var duplicado = allItems.find(function(x){
+    return x.ref.toLowerCase() === refLower && x.id !== editItemId;
+  });
+  if(duplicado){
+    toast('⚠ La referencia "'+ref+'" ya existe — '+duplicado.name);
+    // Resaltar el campo
+    var input = document.getElementById('fRef');
+    input.style.borderColor = 'var(--red)';
+    input.style.background = '#fef2f2';
+    setTimeout(function(){ input.style.borderColor=''; input.style.background=''; }, 2500);
+    return;
+  }
+
+  var data = {
+    ref:   ref,
+    name:  name,
+    desc:  document.getElementById('fDesc').value.trim(),
+    img:   document.getElementById('fImg').value.trim(),
+    cat:   document.getElementById('fCat').value,
+    unit:  document.getElementById('fUnit').value,
+    qty:   Number(qty),
+    price: Number(document.getElementById('fPrice').value)||0,
+    min:   Number(document.getElementById('fMin').value)||0
+  };
+
+  var targetId = editItemId;
   closeItemModal();
-  if(editItemId){
-    // CORRECCIÓN: update no crea duplicados, add sí
-    DB.collection('productos').doc(editItemId).update(data)
-      .then(function(){ toast('Producto actualizado'); })
-      .catch(function(err){ toast('Error: '+err.message); });
+
+  if(targetId){
+    DB.collection('productos').doc(targetId).update(data)
+      .then(function(){ flashFab(); toast('Producto actualizado'); })
+      .catch(function(err){ toast('Error al actualizar: '+err.message); });
   } else {
     DB.collection('productos').add(data)
-      .then(function(){ toast('Producto agregado'); })
-      .catch(function(err){ toast('Error: '+err.message); });
+      .then(function(){ flashFab(); toast('Producto agregado'); })
+      .catch(function(err){ toast('Error al guardar: '+err.message); });
   }
 }
 
